@@ -9,12 +9,7 @@ def hello():
 
 @app.route("/index")
 def index():
-    article = dict()
-    article["title"] = "Deneme"
-    article["body"] = "Deneme123"
-    article["author"] = "Furkan Karaoğlu"
-
-    return render_template("index.html", article = article )
+    return render_template("index.html")
 
 if __name__ == "__main__":
     app.run("0.0.0.0", debug = True)
