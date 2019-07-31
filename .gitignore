@@ -1,3 +1,2 @@
-.git
-.vscode
-venv
+.vscode/
+venv/
