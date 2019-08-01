@@ -9,6 +9,18 @@ from flask_mysqldb import MySQL
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators
 from passlib.hash import sha256_crypt
 
+#user registration form
+class RegisterForm(Form):
+    name = StringField("İsim Soyisim", validators = [validators.Length(min = 4, max = 25)])
+    username = StringField("Kullanıcı Adı", validators = [validators.Length(min = 5, max = 35)])
+    email = StringField("E-mail Adresi", validators = [validators.Email(message = "Lütfen geçerli bir e-mail adresi giriniz!")])
+    password = PasswordField("Parola", validators = [
+        validators.DataRequired("Lütfen bir parola belirleyin!"),
+        validators.EqualTo(fieldname = "confirm", message = "Parolanız uyuşmuyor!")
+    ])
+    confirm = PasswordField("Parola Doğrula")
+
+
 app = Flask(__name__)
 
 app.config["MYSQL_HOST"] = "localhost"
@@ -39,6 +51,10 @@ def about():
 @app.route("/articles/<string:id>")
 def detail(id):
     return "Article ID: " + id
+
+@app.route("/register")
+def register():
+    return render_template("register.html")
 
 
 if __name__ == "__main__":
