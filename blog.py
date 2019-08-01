@@ -36,13 +36,7 @@ mysql = MySQL(app)
 
 @app.route("/")
 def index():
-    articles = [
-        {"id":1, "title":"Deneme1", "content":"Deneme1 icerik"},
-        {"id":2, "title":"Deneme2", "content":"Deneme2 icerik"},
-        {"id":3, "title":"Deneme3", "content":"Deneme3 icerik"}
-    ]
-
-    return render_template("index.html", articles = articles)
+    return render_template("index.html")
 
 @app.route("/about")
 def about():
@@ -52,9 +46,15 @@ def about():
 def detail(id):
     return "Article ID: " + id
 
-@app.route("/register")
+@app.route("/register",methods = ["GET","POST"])
 def register():
-    return render_template("register.html")
+    form = RegisterForm(request.form)
+    if request.method == "POST":
+        return redirect(location = url_for("index"))
+    else:
+        return render_template("register.html", form = form)
+
+    
 
 
 if __name__ == "__main__":
