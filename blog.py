@@ -91,6 +91,11 @@ def login():
             real_password = data["password"]
             if sha256_crypt.verify(password_entered, real_password):
                 flash(message="Başarıyla giriş yapıldı!", category="success")
+                
+                #session started
+                session["logged_in"] = True
+                session["username"] = username
+                
                 return redirect(url_for("index"))
             else:
                 flash(message="Parolanızı yanlış girdiniz!", category="danger")
@@ -98,9 +103,12 @@ def login():
         else:
             flash(message="Böyle bir kullanıcı bulunamadı!", category="danger")
             return redirect(url_for("login"))
-
-
     return render_template("login.html", form = form)
+
+@app.route("/logout", methods = ["GET", "POST"])
+def logout():
+    session.clear()
+    return redirect(url_for("index"))
 
 if __name__ == "__main__":
     app.run("0.0.0.0", debug = True)

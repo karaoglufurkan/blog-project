@@ -16,9 +16,16 @@
                 <li class="nav-item active">
                     <a class="nav-link" href="/register">Kayıt Ol</a>
                 </li>
+
+                {% if session["logged_in"]%}
+                <li class="nav-item active">
+                        <a class="nav-link" href="/logout">Çıkış</a>
+                </li>
+                {% else %}
                 <li class="nav-item active">
                         <a class="nav-link" href="/login">Giriş</a>
                 </li>
+                {% endif %}
             </ul>
         </div>
       </nav>
