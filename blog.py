@@ -20,6 +20,10 @@ class RegisterForm(Form):
     ])
     confirm = PasswordField("Parola Doğrula")
 
+class LoginForm(Form):
+    username = StringField("Kullanıcı Adı")
+    password = PasswordField("Parola")
+
 
 app = Flask(__name__)
 app.secret_key = "fkblog"
@@ -56,8 +60,6 @@ def register():
         email = form.email.data
         username = form.username.data
         password = sha256_crypt.encrypt(form.password.data)
-        #password = form.password.data
-
 
         cursor = mysql.connection.cursor()
         query = "insert into users(name, email, username, password) values(%s,%s,%s,%s)"
@@ -67,14 +69,38 @@ def register():
 
         flash(message = "Kayıt başarıyla tamamlandı!", category = "success")
 
-        return redirect(location = url_for("index"))
+        return redirect(location = url_for("login"))
     else:
         return render_template("register.html", form = form)
 
 #Login sayfası
 @app.route("/login", methods = ["GET","POST"])
 def login():
-    return render_template("login.html")
+    form = LoginForm(request.form)
+
+    if request.method == "POST":
+        username = form.username.data
+        password_entered = form.password.data
+
+        cursor = mysql.connection.cursor()
+        query = "select * from users where username = %s"
+        result = cursor.execute(query,(username,))
+
+        if result > 0:
+            data = cursor.fetchone()
+            real_password = data["password"]
+            if sha256_crypt.verify(password_entered, real_password):
+                flash(message="Başarıyla giriş yapıldı!", category="success")
+                return redirect(url_for("index"))
+            else:
+                flash(message="Parolanızı yanlış girdiniz!", category="danger")
+                return redirect(url_for("login"))
+        else:
+            flash(message="Böyle bir kullanıcı bulunamadı!", category="danger")
+            return redirect(url_for("login"))
+
+
+    return render_template("login.html", form = form)
 
 if __name__ == "__main__":
     app.run("0.0.0.0", debug = True)
