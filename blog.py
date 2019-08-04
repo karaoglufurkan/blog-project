@@ -60,9 +60,22 @@ def index():
 def about():
     return render_template("about.html")
 
-@app.route("/articles/<string:id>")
-def detail(id):
-    return "Article ID: " + id
+#Makale Sayfası
+@app.route("/articles")
+def articles():
+    cursor = mysql.connection.cursor()
+    query = "select * from articles"
+    result = cursor.execute(query)
+
+    if result > 0:
+        articles = cursor.fetchall()
+
+        return render_template("articles.html", articles = articles)
+    else:
+        return render_template("articles.html")
+
+    
+
 
 #Kayıt ol sayfası
 @app.route("/register",methods = ["GET","POST"])
