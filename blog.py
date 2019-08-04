@@ -8,6 +8,18 @@ from flask import Flask, flash, redirect, url_for, session, logging, request, re
 from flask_mysqldb import MySQL 
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators
 from passlib.hash import sha256_crypt
+from functools import wraps
+
+#login decorator
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "logged_in" in session:
+            return f(*args, **kwargs)
+        else:
+            flash(message="Lütfen giriş yapın!", category="danger")
+            return redirect(url_for("login"))
+    return decorated_function
 
 #user registration form
 class RegisterForm(Form):
@@ -26,6 +38,7 @@ class LoginForm(Form):
 
 
 app = Flask(__name__)
+
 app.secret_key = "fkblog"
 
 #mysql configurations
@@ -111,6 +124,7 @@ def logout():
     return redirect(url_for("index"))
 
 @app.route("/dashboard")
+@login_required
 def dashboard():
     return render_template("dashboard.html")
 
