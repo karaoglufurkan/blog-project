@@ -109,7 +109,7 @@ def login():
                 session["logged_in"] = True
                 session["username"] = username
                 
-                return redirect(url_for("index"))
+                return redirect(url_for("dashboard"))
             else:
                 flash(message="Parolanızı yanlış girdiniz!", category="danger")
                 return redirect(url_for("login"))
@@ -128,5 +128,18 @@ def logout():
 def dashboard():
     return render_template("dashboard.html")
 
+#makale ekleme
+@app.route("/addarticle", methods = ["GET", "POST"])
+@login_required
+def addarticle():
+    form = ArticleForm(request.form)
+    return render_template("addarticle.html", form = form)
+
+#makale form
+class ArticleForm(Form):
+    title = StringField("Makale Başlığı", validators = [validators.length(min=5, max=100)])
+    content = TextAreaField("Makale İçeriği", validators = [validators.length(min=10, max=500)])
+    
 if __name__ == "__main__":
     app.run("0.0.0.0", debug = True)
+    app.run()
