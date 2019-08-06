@@ -138,7 +138,7 @@ def login():
 def  article(id):
     cursor = mysql.connection.cursor()
     query = "select * from articles where id = %s"
-    result = cursor.execute(query,(id),)
+    result = cursor.execute(query,(id,))
 
     if result > 0:
         article = cursor.fetchone()
