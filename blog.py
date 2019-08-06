@@ -238,6 +238,26 @@ def addarticle():
 
     return render_template("addarticle.html", form = form)
     
+#search url
+@app.route("/search", methods= ["POST", "GET"])
+def search():
+    if request.method == "POST":
+        keyword = request.form.get("keyword")
+        
+        cursor = mysql.connection.cursor()
+        query = "select * from articles where title like '%" + keyword + "%'"
+        result = cursor.execute(query)
+
+        if result == 0:
+            flash("Aranan kelimeye uygun makale bulunamadı...", "warning")
+            return redirect(url_for("articles"))
+        else:
+            articles = cursor.fetchall()
+            return render_template("articles.html", articles = articles)
+    else:
+        return redirect(url_for("index"))
+
+
 if __name__ == "__main__":
     app.run("0.0.0.0", debug = True)
     app.run()
