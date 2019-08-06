@@ -139,7 +139,17 @@ def logout():
 @app.route("/dashboard")
 @login_required
 def dashboard():
-    return render_template("dashboard.html")
+    cursor = mysql.connection.cursor()
+    query = "select * from articles where author = %s"
+    result = cursor.execute(query,(session["username"],))
+
+    if result > 0:
+        articles = cursor.fetchall()
+        return render_template("dashboard.html", articles=articles)
+    else:
+        return render_template("dashboard.html") 
+
+
 
 #makale ekleme
 @app.route("/addarticle", methods = ["GET", "POST"])
@@ -170,3 +180,4 @@ class ArticleForm(Form):
 if __name__ == "__main__":
     app.run("0.0.0.0", debug = True)
     app.run()
+
