@@ -9,7 +9,7 @@ Yazar : {{article.author}}
 <hr>
 Tarih: {{article.date_created}}
 <hr>
-{{article.content | safe}}
+{{article.content | safe}} <!-- "| safe" is used to monitor an html content -->
 {% else %}
 <div class = "alert alert-warning">Böyle bir makale bulunmuyor</div>
 {% endif %}

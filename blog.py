@@ -35,7 +35,7 @@ class RegisterForm(Form):
 #article form
 class ArticleForm(Form):
     title = StringField("Makale Başlığı", validators = [validators.length(min=5, max=100)])
-    content = TextAreaField("Makale İçeriği", validators = [validators.length(min=10, max=500)])
+    content = TextAreaField("Makale İçeriği", validators = [validators.length(min=10)])
 
 #login form
 class LoginForm(Form):
@@ -145,6 +145,56 @@ def  article(id):
         return render_template("article.html", article = article)
     else:
         return render_template("article.html")
+
+#delete an article
+@app.route("/delete/<string:id>")
+@login_required
+def delete(id):
+    cursor = mysql.connection.cursor()
+    query = "select * from articles where (id = %s and author = %s)"
+    result = cursor.execute(query,(id, session["username"]))
+
+    if result > 0:
+        query2 = "delete from articles where id = %s"
+        cursor.execute(query2,(id,))
+        mysql.connection.commit()
+        flash(message="Makale başarıyla silindi", category="success")
+        return redirect(url_for("dashboard"))
+    else:
+        flash(message="Böyle bir makale yok veya silmeye yetkiniz yok!",category="danger")
+        return redirect(url_for("index"))
+
+#update an article
+@app.route("/edit/<string:id>", methods=["GET", "POST"])
+@login_required
+def update(id):
+    if request.method == "GET":
+        cursor = mysql.connection.cursor()
+        query = "select * from articles where id=%s and author=%s"
+        result = cursor.execute(query,(id,session["username"]))
+        
+        if result == 0:
+            flash("Böyle bir makale yok ya da bu işleme yetkiniz yok!", "danger")
+            return redirect(url_for("index"))
+        else:
+            article = cursor.fetchone()
+            form = ArticleForm()
+            form.title.data = article["title"]
+            form.content.data = article["content"]
+
+            return render_template("update.html", form = form)
+    else:
+        form = ArticleForm(request.form)
+        title = form.title.data
+        content = form.content.data
+        
+        cursor = mysql.connection.cursor()
+        query = "update articles set title = %s, content = %s where id = %s"
+        cursor.execute(query,(title, content, id))
+        mysql.connection.commit()
+
+        flash("Makale başarıyla güncellendi!","success")
+        return redirect(url_for("dashboard"))
 
 
 @app.route("/logout", methods = ["GET", "POST"])
