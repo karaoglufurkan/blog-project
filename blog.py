@@ -32,6 +32,12 @@ class RegisterForm(Form):
     ])
     confirm = PasswordField("Parola Doğrula")
 
+#article form
+class ArticleForm(Form):
+    title = StringField("Makale Başlığı", validators = [validators.length(min=5, max=100)])
+    content = TextAreaField("Makale İçeriği", validators = [validators.length(min=10, max=500)])
+
+#login form
 class LoginForm(Form):
     username = StringField("Kullanıcı Adı")
     password = PasswordField("Parola")
@@ -49,7 +55,6 @@ app.config["MYSQL_PASSWORD"] = ""
 app.config["MYSQL_DB"] = "fkblog"
 app.config["MYSQL_CURSORCLASS"] = "DictCursor"
 
-#
 mysql = MySQL(app)
 
 @app.route("/")
@@ -74,10 +79,7 @@ def articles():
     else:
         return render_template("articles.html")
 
-    
-
-
-#Kayıt ol sayfası
+#register page
 @app.route("/register",methods = ["GET","POST"])
 def register():
     form = RegisterForm(request.form)
@@ -99,7 +101,7 @@ def register():
     else:
         return render_template("register.html", form = form)
 
-#Login sayfası
+#Login page
 @app.route("/login", methods = ["GET","POST"])
 def login():
     form = LoginForm(request.form)
@@ -130,6 +132,20 @@ def login():
             flash(message="Böyle bir kullanıcı bulunamadı!", category="danger")
             return redirect(url_for("login"))
     return render_template("login.html", form = form)
+
+#Article detail page
+@app.route("/article/<string:id>")
+def  article(id):
+    cursor = mysql.connection.cursor()
+    query = "select * from articles where id = %s"
+    result = cursor.execute(query,(id),)
+
+    if result > 0:
+        article = cursor.fetchone()
+        return render_template("article.html", article = article)
+    else:
+        return render_template("article.html")
+
 
 @app.route("/logout", methods = ["GET", "POST"])
 def logout():
@@ -171,11 +187,6 @@ def addarticle():
         return redirect(url_for("dashboard"))
 
     return render_template("addarticle.html", form = form)
-
-#makale form
-class ArticleForm(Form):
-    title = StringField("Makale Başlığı", validators = [validators.length(min=5, max=100)])
-    content = TextAreaField("Makale İçeriği", validators = [validators.length(min=10, max=500)])
     
 if __name__ == "__main__":
     app.run("0.0.0.0", debug = True)
